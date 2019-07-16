@@ -11,21 +11,6 @@ date: 16 July 2019
 
 # Introduction
 
-## Outline
-
-- Options market making model I
-  - Incorporate option price dynamics in a market making framework
-
-- Options market microstructure
-  - Linearity of option prices in small time scales
-  - Role of stochastic volatility
-  - Structure of trade activity
-
-- Options market making model II
-  - Future research
-  - Aiming at closed-form solutions without heuristic approximations
-  - Incorporate trade activity structure in a market making framework
-
 ## Motivation
 
 - Gap in the literature
@@ -46,6 +31,20 @@ date: 16 July 2019
 #. Find local behaviour via small time asymptotics
 #. Incorporate local dynamics to market making model
 
+## Option representation
+
+*Lemma* Let the market state process $(X_t)_{t\in[0,T]}$ be a continuous
+semimartingale. Assume the existence of an ELMM $\mathbb Q$ where
+$(X_t)_{t\in[0,T]}$ is a Markov process. Then, a no-arbitrage price process
+$(C_t)_{t\in[0,T]}$ of an $\mathcal F_T$-measurable claim $f(X_T) \geq 0$ is
+given by
+$$  C_t = \varphi(t, X_t), \quad
+    \varphi(t, x) = \mathbb E^{\mathbb Q}[f(X_{T - t}) \mid X_0 = x]. $$
+
+If $\varphi$ is of class $\mathcal C^{1, 2}(U)$, then
+$$  dC_t = \nabla_x\varphi(t, X_t)dX_t, \quad \forall t \in [0, T). $$
+
+
 ## Small time asymptotics
 
 *Theorem* Let $X$ be an Itô diffusion, of the form
@@ -56,18 +55,9 @@ $$ \text{then } \frac{X_t - \tilde X_t}{\sqrt t} \xrightarrow{L^2} 0, \text{ as 
 
 $$ \text{where } d\tilde X_t = \sigma_0 dW_t. $$
 
+## Heston model simulation
+
 ## {data-background-iframe="20180528/heston.html"}
-
-## Option representation
-
-*Theorem.* Assume the market state process $X$ is an Itô diffusion with locally
-Lipschitz coefficients, invertible diffusion coefficient matrix and with open
-connected support. Then, under no arbitrage, the option $C$ with
-square-integrable payoff $f(X_T)$ follows
-
-$$ C_t = \varphi(X_t), \quad dC_t = \nabla_x\varphi(X_t)dX_t, $$
-
-$$ \text{where } \varphi(x) = \mathbb E^{\mathbb Q}[f(X_T)\mid X_t=x]. $$
 
 ## Role of stochastic volatility
 
@@ -86,14 +76,11 @@ $$ d\tilde C_t = \Delta_0 d\tilde S_t + \mathcal{V}_0 d\tilde V_t$$
 ## Market making framework
 
 - Following [@gueant2017optimal]
-
 - Bid and ask quotes $S^\mathrm{ask}_t$ and $S^\mathrm{bid}_t$ are posted around
   a reference price
-
 $$ dS_t^i = \sigma^i dW_t^i, \quad d[W^i, W^j]_t = \rho^{ij}dt $$
 
 - Trades at bid and ask prices are point processes with arrival rates
-
 $$ \Lambda^{i, \mathrm{ask}}_t = \Lambda^i(S^{i, \mathrm{ask}}_t - S_t^i), \quad
    \Lambda^{i, \mathrm{bid}}_t = \Lambda^i(S^{i, \mathrm{bid}}_t - S_t^i) $$
 $$ \Lambda^i(\delta) = A^ie^{-k^i\delta} $$
@@ -106,7 +93,6 @@ $$ \Lambda^i(\delta) = A^ie^{-k^i\delta} $$
 
 - Market maker optimises CARA utility on terminal wealth with risk aversion
   parameter $\gamma$ and liquidity penalty $\ell$
-
 - The HJB equation is transformed to the system of ODEs
 <small>
 $$ \begin{align}
@@ -117,49 +103,12 @@ $$ \begin{align}
 \end{align} $$
 </small>
 
-## Approximate solution
-
-- Approximation for $T \to \infty$ and by 2nd order Taylor expansion on the
-  difference term
-
-- Optimal spread is constant
-$$ S^{i,\mathrm{ask}}_t - S^{i,\mathrm{bid}}_t = \frac{2}{\gamma}
-  \log\left(1+\frac{\gamma}{k^{i}}\right)
-  + \sqrt{\frac{\gamma}{2}}\Gamma^{ii} $$
-
-- Optimal skew is linear
-$$ \frac{S^{i,\mathrm{ask}}_t + S^{i,\mathrm{bid}}_t}{2} - S^i_t
-= -\sqrt{\frac{\gamma}{2}}\Gamma^{i\bullet} q_{t-}, $$
-
-## 
-
-where
-$$ \Gamma = D^{-\frac 1 2}(D^{1/2}\Sigma D^{1/2})^{1/2} D^{-\frac 1 2} $$
-$$ D = \text{diag}(A^1 C_\gamma^1 k^1,
-           \ldots, A^d C_\gamma^d k^d), $$
-$$ C_\gamma^i = \left(1+\frac{\gamma}{k^{i}}
-    \right)^{-\left(1+\frac{k^{i}}{\gamma}\right)} $$
+## Options market making model I simulation
 
 ## {data-background-iframe="20190716/optimal_quotes.html"}
 
 
 # Options market microstructure
-
-## Market microstructure effects
-
-- Fundamental price vs microstructure price
-  - Market maker needs to filter microstructure effects
-
-- Options are unevenly affected by microstructure effects
-
-## Intraday volatility
-
-- Stochastic volatility is obtained by inverting the Heston formula
-- Consistent with at-the-money volatility
-- Stochastic volatility is rough
-
-## {data-background-image="20190716/vols.png" data-background-size=contain}
-## {data-background-image="20190716/variogram.png" data-background-size=contain}
 
 ## Linear model for options
 
@@ -181,7 +130,12 @@ $$ C_{t+h} - C_t = \Delta(S_{t+h} - S_t) + \mathcal{V}(V_{t+h} - V_t) + \epsilon
 - Vega is successfully recovered for the first time
   - Compare with [@abergel2012drives]
 
+## Heston vs Empirical Delta for call options
+
 ## {data-background-image="20190716/compare_deltas_call.png" data-background-size=contain}
+
+## Heston vs Empirical Vega for call options
+
 ## {data-background-image="20190716/compare_vegas_call.png" data-background-size=contain}
 
 ## Trading activity structure
@@ -195,33 +149,16 @@ $$ C_{t+h} - C_t = \Delta(S_{t+h} - S_t) + \mathcal{V}(V_{t+h} - V_t) + \epsilon
 
 # Options market making model II
 
-## Ideas for tractability
+## Ideas
 
-- Heavy-traffic approximation on wealth process
-  - Allows Hawkes-like processes for order flow
-  - Optimal quotes reinterpreted as average targets
-  - High dimensionality implies better approximation
-
-- Time-homogeneous solutions
-  - Market maker horizon at infinity
-  - E.g. ergodic control for [@cjp15]-type of functional
-$$ \lim_{T\to\infty} \frac{1}{T}\mathbb E \left[ \int_0^T\left(dV_t - \gamma d[V]_t\right) \right] $$
- 
-## Other ideas
-
-- Couple trading activity between options
-  - Trading activity depends on option position on the vol surface
-  - Allow order flow to depend on underlying asset price
- 
-- Factor-based market making
-  - Both price and trade activity dynamics explained by factors
-  - Optimal quotes as a function of strike and expiry
-
-## Extension
-
-- Incorporating views
-  - Views as in [@black1992global] and [@davis2013black]
-  - Allows for views on linear combination of options
+- Tractability
+  - Heavy-traffic approximation on wealth process
+  - Time-homogeneous solutions
+- Liquidity structure
+  - Trading activity as function of moneyness and expiry
+  - Factor-based market making (continuum of options)
+- Extension
+  - Views as in [@black1992global]
 
 ## Thank you!
 

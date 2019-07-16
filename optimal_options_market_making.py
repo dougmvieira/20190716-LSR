@@ -1,6 +1,5 @@
 import holoviews as hv
 import numpy as np
-import xarray as xr
 from scipy.integrate import solve_ivp
 from fyne import heston
 
@@ -95,32 +94,23 @@ expiry = 1/12
 cov_matrix = options_cov_matrix(underlying_price, strikes, expiry, vol, kappa,
                                 theta, nu, rho)/(365*6*60)
 
-params = dict(time=10, inventory_bounds=(10, 10, 10),
+params = dict(time=10, inventory_bounds=(20, 20, 20),
               covariance_matrix=cov_matrix, base_intensities=np.array(3*[0.9]),
               intensity_decays=np.array(3*[0.3]), exec_risk_aversion=0.01,
               price_risk_aversion=0.01)
 
-inventory = np.arange(-10, 11)
+inventory = np.arange(-20, 21)
 bid_control, ask_control = optimal_controls(**params)
 
-bid_quotes = xr.DataArray(
-    underlying_price - bid_control,
-    dims=('ITM inventory', 'ATM inventory', 'OTM inventory', 'Option'),
-    coords={'ITM inventory': inventory, 'ATM inventory': inventory,
-            'OTM inventory': inventory, 'Option': ['ITM', 'ATM', 'OTM']},
-    name='Price')
-
-ask_quotes = xr.DataArray(
-    underlying_price + ask_control,
-    dims=('ITM inventory', 'ATM inventory', 'OTM inventory', 'Option'),
-    coords={'ITM inventory': inventory, 'ATM inventory': inventory,
-            'OTM inventory': inventory, 'Option': ['ITM', 'ATM', 'OTM']},
-    name='Price')
+data = (['ITM', 'ATM', 'OTM'], inventory, inventory, inventory, ['Bid', 'Ask'],
+        (underlying_price - bid_control, underlying_price + ask_control))
+kdims = ['Option', hv.Dimension('OTM inventory', default=0), 'ATM inventory',
+         hv.Dimension('ITM inventory', default=0), 'Quote']
+ds = hv.Dataset(data, kdims, 'Price')
 
 hv.extension('bokeh')
 hv.output(max_frames=6000)
-ask_curve = hv.Dataset(ask_quotes).to(hv.Curve, 'ATM inventory')
-bid_curve = hv.Dataset(bid_quotes).to(hv.Curve, 'ATM inventory')
-hv.save((ask_curve*bid_curve).opts(responsive=True, height=720,
-                                   title='Optimal quotes'),
-        '20190716/optimal_quotes.html')
+curve = ds.to(hv.Curve, 'ATM inventory', 'Price'
+         ).overlay('Quote'
+         ).opts(responsive=True, height=720, title='Optimal quotes')
+hv.save(curve, '20190716/optimal_quotes.html')
